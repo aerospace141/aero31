@@ -1,6 +1,6 @@
 const express = require("express");
-const cloudinary = require("../../dbs/cloudinaryConfig"); // Ensure correct import
-const upload = require("../../dbs/multerConfig"); // Multer for image handling
+const cloudinary = require("../dbs/cloudinaryConfig"); // Ensure correct import
+const upload = require("../dbs/multerConfig"); // Multer for image handling
 const fs = require("fs");
 const Customer = require("../../models/Customer");
 const streamifier = require("streamifier");
