@@ -118,41 +118,41 @@ router.get('/loan-profile/:customerID', authenticateUser, async (req, res) => {
 // const multer = require('multer');
 const uploads = multer({ storage: storage });
 
-router.post('/loan-profile/:customerID/signature', authenticateUser, upload.single('attachments'), async (req, res) => {
-  const { customerID } = req.params;
-  try {
-    // const { customerID } = req.params;
-    const filePath = req.file ? `/uploads/${req.file.filename}` : null;
+// router.post('/loan-profile/:customerID/signature', authenticateUser, upload.single('attachments'), async (req, res) => {
+//   const { customerID } = req.params;
+//   try {
+//     // const { customerID } = req.params;
+//     const filePath = req.file ? `/uploads/${req.file.filename}` : null;
 
-    console.log('Uploaded File Path:', filePath); // Debug
+//     console.log('Uploaded File Path:', filePath); // Debug
 
-    if (!filePath) {
-      return res.status(400).send({ message: 'No file uploaded.' });
-    }
-    const attachmentEntry = {
-      path: filePath,
-      date: new Date(), // Automatically set the current date
-    };
+//     if (!filePath) {
+//       return res.status(400).send({ message: 'No file uploaded.' });
+//     }
+//     const attachmentEntry = {
+//       path: filePath,
+//       date: new Date(), // Automatically set the current date
+//     };
 
-    const loan = await Loan.findOneAndUpdate(
-      { customerID, addedBy: req.userId },
+//     const loan = await Loan.findOneAndUpdate(
+//       { customerID, addedBy: req.userId },
    
-      { $push: { "loanDetails.signature": attachmentEntry } }, // Ensure the correct path is used
-      { new: true }
-    );
+//       { $push: { "loanDetails.signature": attachmentEntry } }, // Ensure the correct path is used
+//       { new: true }
+//     );
 
-    if (!loan) {
-      return res.status(404).send({ message: 'Loan not found.' });
-    }
+//     if (!loan) {
+//       return res.status(404).send({ message: 'Loan not found.' });
+//     }
 
-    console.log('Updated Loan:', loan); // Debug
+//     console.log('Updated Loan:', loan); // Debug
 
-    res.status(200).send(loan);
-  } catch (error) {
-    console.error('Error saving signature:', error);
-    res.status(500).send({ message: 'Error saving signature.' });
-  }
-});
+//     res.status(200).send(loan);
+//   } catch (error) {
+//     console.error('Error saving signature:', error);
+//     res.status(500).send({ message: 'Error saving signature.' });
+//   }
+// });
 
 router.put('/billNo/:customerID', async (req, res) => {  
   const { customerID } = req.params;  
