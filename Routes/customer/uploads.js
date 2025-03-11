@@ -1,13 +1,12 @@
 const express = require("express");
-const cloudinary = require("../../dbs/cloudinaryConfig");
-const upload = require("../dbs/multerConfig"); // Ensure correct import
-const fs = require("fs");
-const Customer = require("../models/Customer");
+const cloudinary = require("../dbs/cloudinaryConfig");
+const upload = require("../dbs/multerConfig");
+const Customer = require("../../models/Customer");
 const streamifier = require("streamifier");
 
 const router = express.Router();
 
-// ✅ Upload Multiple Images & Documents
+// ✅ Upload Images & Documents
 router.post("/doc/upload/:customerID", upload.fields([{ name: "images" }, { name: "documents" }]), async (req, res) => {
     try {
         const { customerID } = req.params;

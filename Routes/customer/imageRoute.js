@@ -1,50 +1,52 @@
 const express = require("express");
-const cloudinary = require("../dbs/cloudinaryConfig"); // Ensure correct import
-const upload = require("../dbs/multerConfig"); // Multer for image handling
-const fs = require("fs");
-const Customer = require("../../models/Customer");
+const cloudinary = require("../dbs/cloudinaryConfig");
+const upload = require("../dbs/multerConfig");
+const Customer = require("./../../models/Customer");
 const streamifier = require("streamifier");
 
 const router = express.Router();
 
-// ✅ Upload Profile Image for Customer
+// ✅ Upload Profile Image (Now works with memory storage)
 router.post("/ac/upload/:customerID", upload.single("image"), async (req, res) => {
     try {
         const { customerID } = req.params;
         if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
-        // Find customer & remove old image from Cloudinary
+        // ✅ Remove old profile image from Cloudinary (if exists)
         const customer = await Customer.findOne({ customerID });
         if (customer && customer.profileImage) {
             const oldImagePublicId = customer.profileImage.split("/").pop().split(".")[0];
             await cloudinary.uploader.destroy(`CDP1/${customerID}/${oldImagePublicId}`);
         }
 
-        // ✅ Upload image to Cloudinary
-        const result = await cloudinary.uploader.upload_stream(
-            { folder: `CDP1/${customerID}` },
-            async (error, result) => {
-                if (error) return res.status(500).json({ error: "Cloudinary upload failed", details: error.message });
-
-                // ✅ Update customer profile image URL in database
-                const updatedCustomer = await Customer.findOneAndUpdate(
-                    { customerID },
-                    { profileImage: result.secure_url },
-                    { new: true, upsert: true }
+        // ✅ Upload image to Cloudinary using a stream
+        const streamUpload = async () => {
+            return new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    { folder: `CDP1/${customerID}` },
+                    (error, result) => (error ? reject(error) : resolve(result))
                 );
+                streamifier.createReadStream(req.file.buffer).pipe(stream);
+            });
+        };
 
-                res.json({ message: "Profile image uploaded successfully", imageUrl: result.secure_url, updatedCustomer });
-            }
+        const result = await streamUpload();
+
+        // ✅ Update customer profile image in database
+        const updatedCustomer = await Customer.findOneAndUpdate(
+            { customerID },
+            { profileImage: result.secure_url },
+            { new: true, upsert: true }
         );
 
-        streamifier.createReadStream(req.file.buffer).pipe(result);
+        res.json({ message: "Profile image uploaded successfully", imageUrl: result.secure_url, updatedCustomer });
 
     } catch (error) {
         res.status(500).json({ error: "Image upload failed", details: error.message });
     }
 });
 
-// ✅ Retrieve Customer Image
+// ✅ Retrieve Profile Image
 router.get("/imag/:customerID", async (req, res) => {
     try {
         const customer = await Customer.findOne({ customerID: req.params.customerID });
