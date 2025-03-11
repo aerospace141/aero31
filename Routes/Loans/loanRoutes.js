@@ -80,7 +80,7 @@ router.post('/add-loan/:customerID', authenticateUser, upload.single('attachment
           frequency: isCompoundInterest ? compoundFrequency : null,
         },
         startDate,
-        attachments: req.file ? [`/uploads/${req.file.filename}`] : [],
+        attachments: req.file ? upload : [],
         remarks,
         
         
