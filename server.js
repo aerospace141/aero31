@@ -37,23 +37,7 @@ const docs = require('./Routes/customer/uploads');
 
 app.use(bodyParser.json());
 
-const allowedOrigins = [
-  "https://ledger1x.web.app",
-  "https://ledger1xspace141.web.app",
-];
-
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  })
-);
+app.use(cors({ origin: 'https://ledger1x.web.app' }));
 
 app.use('/api', signup);
 app.use('/api', login);  
