@@ -20,17 +20,18 @@ router.post("/ac/upload/:customerID", upload.single("image"), async (req, res) =
         }
 
         // ✅ Upload image to Cloudinary using a stream
-        const streamUpload = async () => {
-            return new Promise((resolve, reject) => {
-                const stream = cloudinary.uploader.upload_stream(
-                    { folder: `CDP1/${customerID}` },
-                    (error, result) => (error ? reject(error) : resolve(result))
-                );
-                streamifier.createReadStream(req.file.buffer).pipe(stream);
-            });
-        };
+        const streamUpload = async (fileBuffer, folderPath) => {
+          return new Promise((resolve, reject) => {
+              const stream = cloudinary.uploader.upload_stream(
+                  { folder: folderPath },
+                  (error, result) => (error ? reject(error) : resolve(result))
+              );
+              streamifier.createReadStream(fileBuffer).pipe(stream);
+          });
+      };
+      
 
-        const result = await streamUpload();
+        const result = await streamUpload(req.file.buffer, `CDP1/${customerID}`);
 
         // ✅ Update customer profile image in database
         const updatedCustomer = await Customer.findOneAndUpdate(
