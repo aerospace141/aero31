@@ -37,7 +37,7 @@ const docs = require('./Routes/customer/uploads');
 
 app.use(bodyParser.json());
 
-app.use(cors({ origin: 'https://ledger1xspace141.web.app' }));
+app.use(cors({ origin: 'https://ledger1x.web.app' }));
 
 app.use('/api', signup);
 app.use('/api', login);  
