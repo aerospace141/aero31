@@ -7,57 +7,60 @@ const streamifier = require("streamifier");
 const router = express.Router();
 
 // ✅ Upload Images & Documents
+// ✅ Upload Images & Documents (Fix ENOENT issue)
 router.post("/doc/upload/:customerID", upload.fields([{ name: "images" }, { name: "documents" }]), async (req, res) => {
-    try {
-        const { customerID } = req.params;
-        const customer = await Customer.findOne({ customerID });
+  try {
+      const { customerID } = req.params;
+      const customer = await Customer.findOne({ customerID });
 
-        let newImages = [];
-        let newDocuments = [];
+      let newImages = [];
+      let newDocuments = [];
 
-        // ✅ Upload Images to Cloudinary
-        if (req.files.images) {
-            for (const file of req.files.images) {
-                const result = await new Promise((resolve, reject) => {
-                    const stream = cloudinary.uploader.upload_stream(
-                        { folder: `customers/${customerID}/images` },
-                        (error, result) => (error ? reject(error) : resolve(result))
-                    );
-                    streamifier.createReadStream(file.buffer).pipe(stream);
-                });
+      // ✅ Upload Images to Cloudinary (Fix ENOENT issue)
+      if (req.files.images) {
+          for (const file of req.files.images) {
+              const result = await new Promise((resolve, reject) => {
+                  const stream = cloudinary.uploader.upload_stream(
+                      { folder: `customers/${customerID}/images` },
+                      (error, result) => (error ? reject(error) : resolve(result))
+                  );
+                  streamifier.createReadStream(file.buffer).pipe(stream);
+              });
 
-                newImages.push({ image: result.secure_url, timestamp: new Date(), senderYou: "You" });
-            }
-        }
+              newImages.push({ image: result.secure_url, timestamp: new Date(), senderYou: "You" });
+          }
+      }
 
-        // ✅ Upload Documents to Cloudinary
-        if (req.files.documents) {
-            for (const file of req.files.documents) {
-                const result = await new Promise((resolve, reject) => {
-                    const stream = cloudinary.uploader.upload_stream(
-                        { folder: `customers/${customerID}/documents`, resource_type: "raw" },
-                        (error, result) => (error ? reject(error) : resolve(result))
-                    );
-                    streamifier.createReadStream(file.buffer).pipe(stream);
-                });
+      // ✅ Upload Documents to Cloudinary (Fix ENOENT issue)
+      if (req.files.documents) {
+          for (const file of req.files.documents) {
+              const result = await new Promise((resolve, reject) => {
+                  const stream = cloudinary.uploader.upload_stream(
+                      { folder: `customers/${customerID}/documents`, resource_type: "raw" },
+                      (error, result) => (error ? reject(error) : resolve(result))
+                  );
+                  streamifier.createReadStream(file.buffer).pipe(stream);
+              });
 
-                newDocuments.push({ url: result.secure_url, timestamp: new Date() });
-            }
-        }
+              newDocuments.push({ url: result.secure_url, timestamp: new Date() });
+          }
+      }
 
-        // ✅ Update Customer Record
-        const updatedCustomer = await Customer.findOneAndUpdate(
-            { customerID },
-            { $push: { images: newImages, documents: newDocuments } },
-            { new: true }
-        );
+      // ✅ Update Customer Record
+      const updatedCustomer = await Customer.findOneAndUpdate(
+          { customerID },
+          { $push: { images: newImages, documents: newDocuments } },
+          { new: true }
+      );
 
-        res.json({ message: "Files uploaded successfully", images: newImages, documents: newDocuments });
+      res.json({ message: "Files uploaded successfully", images: newImages, documents: newDocuments });
 
-    } catch (error) {
-        res.status(500).json({ error: "File upload failed", details: error.message });
-    }
+  } catch (error) {
+      console.error("Error uploading files:", error);
+      res.status(500).json({ error: "File upload failed", details: error.message });
+  }
 });
+
 
 // ✅ Retrieve Customer Files
 router.get("/files/:customerID", async (req, res) => {
