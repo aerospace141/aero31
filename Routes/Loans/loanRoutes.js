@@ -118,7 +118,7 @@ router.get('/loan-profile/:customerID', authenticateUser, async (req, res) => {
 });
 
 // const multer = require('multer');
-const uploads = multer({ storage: storage });
+// const uploads = multer({ storage: storage });
 
 // router.post('/loan-profile/:customerID/signature', authenticateUser, upload.single('attachments'), async (req, res) => {
 //   const { customerID } = req.params;
