@@ -1,23 +1,26 @@
-const cloudinary = require("cloudinary").v2;
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-require("dotenv").config();
+const multer = require("multer");
 
-// Cloudinary Configuration
-cloudinary.config({
-  cloud_name: "dvopqpu5k",
-  api_key: "513979796987495",
-  api_secret: "D9_QhGim0a4O2CYhzvF7Ur1Br2I",
-});
+// ✅ Use Memory Storage (No Local Uploads)
+const storage = multer.memoryStorage(); 
 
-// Cloudinary Storage for Multer
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: "uploads", // Change folder name as needed
-    allowed_formats: ["jpg", "png", "jpeg", "gif", "pdf", "doc", "docx"],
-  },
-});
+// ✅ File filter for allowed formats
+const fileFilter = (req, file, cb) => {
+  const allowedMimeTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ];
 
-const upload = require("multer")({ storage });
+  if (allowedMimeTypes.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only image and document files are allowed!"), false);
+  }
+};
 
-module.exports = { upload, cloudinary };
+const upload = multer({ storage, fileFilter });
+
+module.exports = upload;
