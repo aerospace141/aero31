@@ -8,7 +8,7 @@ const { upload } = require("./cloudinary");
 const { authenticateUser }  = require('../../middleware/authentication');
 
 const router = express.Router();
-router.use('/uploads', express.static('uploads'));
+// router.use('/uploads', express.static('uploads'));
 // router.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
 
 
@@ -63,6 +63,8 @@ router.post('/add-loan/:customerID', authenticateUser, upload.single('attachment
     }
 
     const isCompoundInterest = compoundInterest === 'true';
+    const uploadedFile = req.file ? req.file.path : null;
+
 
     // Create a new loan linked to the customer
     const loan = await Loan.create({
@@ -80,7 +82,7 @@ router.post('/add-loan/:customerID', authenticateUser, upload.single('attachment
           frequency: isCompoundInterest ? compoundFrequency : null,
         },
         startDate,
-        attachments: req.file ? upload : [],
+        attachments: uploadedFile ? [uploadedFile] : [],
         remarks,
         
         
