@@ -1,6 +1,6 @@
 const express = require("express");
-const cloudinary = require("../../dbs/cloudinaryConfig");
-const upload = require("../../dbs/multerConfig");
+const cloudinary = require("../dbs/cloudinaryConfig");
+const upload = require("../dbs/multerConfig");
 const Customer = require("../../models/Customer");
 const streamifier = require("streamifier");
 
