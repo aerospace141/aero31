@@ -111,6 +111,12 @@ router.get("/transactions/summary", authenticateUser, async (req, res) => {
 });
 
 
+app.get("/ping", (req, res) => {
+  res.send("Backend is alive, Host Vercel, AERO31");
+});
+
+
+
 
 
 
