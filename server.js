@@ -92,7 +92,7 @@ app.get("/",(req,res) => {
   res.status(200).send("hi, Its working.");
 })
 
-// Start the server
+// Start the server ui
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

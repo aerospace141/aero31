@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 const jwtSecret = process.env.JWT_SECRET || 'anykey';
 
 
-const FAST2SMS_API_KEY = "rXWbJda2A3hn507E9CTUBPZq8LNemHtsYfgDc164GRFjwyOpQuKarWg7vMIA3fRtFPYZysh1UweXJNmS" ;
+const FAST2SMS_API_KEY = "csomT8ntJdy63Ii3fT2NnZRly2oIDMcqp0CcHJ346exBnENZPWXK3egHKAOq" ;
 
 // Temporary storage for OTPs
 const otpStore = {};
