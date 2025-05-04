@@ -29,25 +29,37 @@ router.get('/customers', authenticateUser, async (req, res) => {
     // Fetch unread message counts & latest timestamps
     const customerData = await Promise.all(
       customers.map(async (customer) => {
-        const lastMessage = await Chat.findOne({
-          $or: [{ sender: customer.phoneNumber }, { receiver: customer.phoneNumber }],
-        })
-          .sort({ timestamp: -1 }) // Sort to get the latest message
-          .select('timestamp'); // Fetch only timestamp field
-
-        const unreadCount = await Chat.countDocuments({
-          sender: customer.phoneNumber,
-          receiver: byPhoneNumber,
-          isRead: false,
-        });
-
-        return {
-          ...customer._doc,
-          lastMessageTimestamp: lastMessage ? lastMessage.timestamp : 0,
-          unreadCount,
-        };
+        try {
+          const lastMessage = await Chat.findOne({
+            $or: [{ sender: customer.phoneNumber }, { receiver: customer.phoneNumber }],
+          })
+            .sort({ timestamp: -1 })
+            .select('timestamp');
+    
+          const unreadCount = await Chat.countDocuments({
+            sender: customer.phoneNumber,
+            receiver: byPhoneNumber,
+            isRead: false,
+          });
+    
+          return {
+            ...customer._doc,
+            lastMessageTimestamp: lastMessage ? lastMessage.timestamp : 0,
+            unreadCount,
+          };
+        } catch (err) {
+          console.error('Error processing customer:', customer.phoneNumber, err.message);
+          return {
+            ...customer._doc,
+            lastMessageTimestamp: 0,
+            unreadCount: 0,
+            error: 'Chat data unavailable'
+          };
+        }
       })
     );
+    
+    
 
     // Sort customers:
     // 1️⃣ First, by unread messages (higher unread messages come first).
@@ -64,6 +76,7 @@ router.get('/customers', authenticateUser, async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch customers', error: error.message });
   }
 });
+
 
 
 

@@ -25,6 +25,7 @@ router.post('/send-otp', async (req, res) => {
 
   const otp = Math.floor(100000 + Math.random() * 900000); // Generate a 6-digit OTP
   otpStore[mobileNumber] = otp; // Store OTP temporarily
+  console.error('succes till generat');
 
   try {
     const response = await axios.post(
