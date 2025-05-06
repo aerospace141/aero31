@@ -36,8 +36,10 @@ router.post('/login', async (req, res) => {
     }
   });
     // Google authentication route
+// Google authentication route
 router.post('/auth/google', async (req, res) => {
   try {
+    console.log("Google auth request received:", req.body);
     const { token, mobileNumber } = req.body;
     
     if (!token) {
@@ -49,42 +51,69 @@ router.post('/auth/google', async (req, res) => {
     }
 
     // Verify the Google token
+    console.log("Verifying token with client ID:", GOOGLE_CLIENT_ID);
     const ticket = await client.verifyIdToken({
       idToken: token,
-      audience: "679832363574-9don8skic3d6n3r8geli6ippcbrip1pe.apps.googleusercontent.com", // from Google Cloud Console
+      audience: GOOGLE_CLIENT_ID,
     });
 
     const payload = ticket.getPayload();
-    const { email, name, picture } = payload;
+    console.log("Google payload received:", payload);
+    const { email, name, sub } = payload;
 
     // Check if user exists with the provided mobile number
     let user = await User.findOne({ mobileNumber });
 
     if (user) {
+      console.log("User found with mobile number:", mobileNumber);
       // User exists, update Google information
-      user.email = email;
-      // user.name = name || user.name;
-      // user.profilePicture = picture || user.profilePicture;
-      // user.googleId = payload.sub;
-      await user.save();
+      user.email = email || user.email;
+      
+      // Handle potential missing fields in user model
+      try {
+        await user.save();
+        console.log("Updated existing user");
+      } catch (saveError) {
+        console.error("Error saving user:", saveError);
+        return res.status(500).json({ error: 'Error updating user profile' });
+      }
     } else {
+      console.log("Creating new user for mobile:", mobileNumber);
       // Create new user with Google information and provided mobile number
-      // const salt = await bcrypt.genSalt(10);
-      // Generate a random password (user will login with Google or can reset password)
-      const randomPassword = Math.random().toString(36).slice(-8);
-      // const hashedPassword = await bcrypt.hash(randomPassword, salt);
+      try {
+        // Generate random password for new user
+        const randomPassword = Math.random().toString(36).slice(-8);
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(randomPassword, salt);
+        
+        // Generate a unique userId (you might have a different way to generate this)
+        const userId = 'G' + Date.now().toString().slice(-8) + Math.random().toString(36).substring(2, 5);
+        
+        // Split name into first and last name
+        let firstName = name;
+        let lastName = "";
+        
+        if (name && name.includes(' ')) {
+          const nameParts = name.split(' ');
+          firstName = nameParts[0];
+          lastName = nameParts.slice(1).join(' ');
+        }
 
-      user = new User({
-        firstName: name,
-        email: email,
-        mobileNumber: mobileNumber,
-        password: randomPassword,
-        // googleId: payload.sub,
-        // profilePicture: picture,
-        // Additional fields as needed
-      });
+        user = new User({
+          userId: userId,
+          firstName: firstName,
+          lastName: lastName || ".", // Your schema requires lastName
+          email: email,
+          mobileNumber: mobileNumber,
+          password: hashedPassword
+        });
 
-      await user.save();
+        await user.save();
+        console.log("New user created successfully");
+      } catch (createError) {
+        console.error("Error creating new user:", createError);
+        return res.status(500).json({ error: 'Failed to create new user account' });
+      }
     }
 
     // Generate JWT token
@@ -94,12 +123,12 @@ router.post('/auth/google', async (req, res) => {
       { expiresIn: '1h' }
     );
 
+    console.log("Authentication successful, returning token");
     res.status(200).json({ token: jwtToken });
   } catch (error) {
     console.error('Google authentication error:', error);
-    res.status(500).json({ error: 'Authentication failed' });
+    res.status(500).json({ error: 'Authentication failed: ' + error.message });
   }
 });
 
-
-  module.exports = router;
+module.exports = router;
