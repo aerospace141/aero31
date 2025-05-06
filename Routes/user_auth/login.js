@@ -60,8 +60,8 @@ router.post('/auth/google', async (req, res) => {
       // User exists, update Google information
       user.email = email;
       user.name = name || user.name;
-      user.profilePicture = picture || user.profilePicture;
-      user.googleId = payload.sub;
+      // user.profilePicture = picture || user.profilePicture;
+      // user.googleId = payload.sub;
       await user.save();
     } else {
       // Create new user with Google information and provided mobile number
@@ -74,9 +74,9 @@ router.post('/auth/google', async (req, res) => {
         name: name,
         email: email,
         mobileNumber: mobileNumber,
-        password: hashedPassword,
-        googleId: payload.sub,
-        profilePicture: picture,
+        // password: hashedPassword,
+        // googleId: payload.sub,
+        // profilePicture: picture,
         // Additional fields as needed
       });
 
