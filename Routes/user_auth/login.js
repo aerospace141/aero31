@@ -69,16 +69,16 @@ router.post('/auth/google', async (req, res) => {
       await user.save();
     } else {
       // Create new user with Google information and provided mobile number
-      const salt = await bcrypt.genSalt(10);
+      // const salt = await bcrypt.genSalt(10);
       // Generate a random password (user will login with Google or can reset password)
       const randomPassword = Math.random().toString(36).slice(-8);
-      const hashedPassword = await bcrypt.hash(randomPassword, salt);
+      // const hashedPassword = await bcrypt.hash(randomPassword, salt);
 
       user = new User({
         firstName: name,
         email: email,
         mobileNumber: mobileNumber,
-        password: hashedPassword,
+        password: randomPassword,
         // googleId: payload.sub,
         // profilePicture: picture,
         // Additional fields as needed
