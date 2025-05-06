@@ -66,17 +66,18 @@ router.post('/auth/google', async (req, res) => {
 
     if (user) {
       console.log("User found with mobile number:", mobileNumber);
-      // User exists, update Google information
-      user.email = email || user.email;
+      // // User exists, update Google information
+      // user.email = email || user.email;
       
-      // Handle potential missing fields in user model
-      try {
-        await user.save();
-        console.log("Updated existing user");
-      } catch (saveError) {
-        console.error("Error saving user:", saveError);
-        return res.status(500).json({ error: 'Error updating user profile' });
-      }
+  
+      // // Handle potential missing fields in user model
+      // try {
+      //   await user.save();
+      //   console.log("Updated existing user");
+      // } catch (saveError) {
+      //   console.error("Error saving user:", saveError);
+      //   return res.status(500).json({ error: 'Error updating user profile' });
+      // }
     } else {
       console.log("Creating new user for mobile:", mobileNumber);
       // Create new user with Google information and provided mobile number
