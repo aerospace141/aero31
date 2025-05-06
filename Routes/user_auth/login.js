@@ -56,32 +56,32 @@ router.post('/auth/google', async (req, res) => {
     // Check if user exists with the provided mobile number
     let user = await User.findOne({ mobileNumber });
 
-    if (user) {
-      // User exists, update Google information
-      user.email = email;
-      user.name = name || user.name;
-      // user.profilePicture = picture || user.profilePicture;
-      // user.googleId = payload.sub;
-      await user.save();
-    } else {
-      // Create new user with Google information and provided mobile number
-      const salt = await bcrypt.genSalt(10);
-      // Generate a random password (user will login with Google or can reset password)
-      const randomPassword = Math.random().toString(36).slice(-8);
-      const hashedPassword = await bcrypt.hash(randomPassword, salt);
+    // if (user) {
+    //   // User exists, update Google information
+    //   user.email = email;
+    //   user.name = name || user.name;
+    //   // user.profilePicture = picture || user.profilePicture;
+    //   // user.googleId = payload.sub;
+    //   await user.save();
+    // } else {
+    //   // Create new user with Google information and provided mobile number
+    //   const salt = await bcrypt.genSalt(10);
+    //   // Generate a random password (user will login with Google or can reset password)
+    //   const randomPassword = Math.random().toString(36).slice(-8);
+    //   const hashedPassword = await bcrypt.hash(randomPassword, salt);
 
-      user = new User({
-        name: name,
-        email: email,
-        mobileNumber: mobileNumber,
-        // password: hashedPassword,
-        // googleId: payload.sub,
-        // profilePicture: picture,
-        // Additional fields as needed
-      });
+    //   user = new User({
+    //     name: name,
+    //     email: email,
+    //     mobileNumber: mobileNumber,
+    //     // password: hashedPassword,
+    //     // googleId: payload.sub,
+    //     // profilePicture: picture,
+    //     // Additional fields as needed
+    //   });
 
-      await user.save();
-    }
+    //   await user.save();
+    // }
 
     // Generate JWT token
     const jwtToken = jwt.sign(
