@@ -4,6 +4,10 @@ const User = require('../../models/user'); // Assuming your User model is define
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const jwtSecret = process.env.JWT_SECRET || 'anykey';
+const { OAuth2Client } = require('google-auth-library');
+
+const client = new OAuth2Client("679832363574-9don8skic3d6n3r8geli6ippcbrip1pe.apps.googleusercontent.com"); // paste your Client ID
+
 
 router.post('/login', async (req, res) => {
     try {
